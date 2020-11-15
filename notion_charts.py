@@ -3,11 +3,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 from notion.client import NotionClient
 from notion.block import *
-from notion.collection import *
-from notion.user import *
 
-from datetime import datetime
-import time
 
 # takes about 10sec
 
@@ -22,8 +18,8 @@ sheets_client = gspread.authorize(creds)
 # Set up Notion Connection
 # -----------------------------
 token = 'cd8da425c7db1922f62fb6f7fffde69cd874130211bed1ebe25722bb3226053483de5b05753c7aa2bd168fb3886c41db1999599d8feda244f5d80364be23da228a42f03e249342d56d67adfbdcb9'
-tableurl = 'https://www.notion.so/samuelwoelfl/1bdab4520874431ab2baa3bae6f3aba2?v=19ba09f26eb8461b9fd2c99a29e90091'
-pageurl = 'https://www.notion.so/samuelwoelfl/Smoking-Page-d8279f2b8015487ca08e5cd261f597ab'
+tableurl = 'https://www.notion.so/samuelwoelfl/8f649c46e7b44eb78804d892e69eca4f?v=07d2c483af0a4c03b302ea4df4d395c1'
+pageurl = 'https://www.notion.so/samuelwoelfl/Freelance-Space-4fc251bb5b5c4e2fad04b1b659f40ee4'
 
 
 # -----------------------------
@@ -96,8 +92,10 @@ class NotionAPI:
                             isuser = False
 
                         try:
-                            value[0].title
-                            ispage = True
+                            if type(value[0].title) != type(pow):
+                                ispage = True
+                            else:
+                                ispage = False
                         except:
                             ispage = False
 
