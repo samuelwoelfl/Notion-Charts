@@ -1,9 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
-
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -31,14 +25,6 @@ token = 'cd8da425c7db1922f62fb6f7fffde69cd874130211bed1ebe25722bb3226053483de5b0
 tableurl = 'https://www.notion.so/samuelwoelfl/1bdab4520874431ab2baa3bae6f3aba2?v=19ba09f26eb8461b9fd2c99a29e90091'
 pageurl = 'https://www.notion.so/samuelwoelfl/Smoking-Page-d8279f2b8015487ca08e5cd261f597ab'
 
-# -----------------------------
-# Legacy for Notion fetching with Selenium
-# -----------------------------
-# url = 'https://www.notion.so/samuelwoelfl/Freelance-Space-4fc251bb5b5c4e2fad04b1b659f40ee4'
-# name = "Aufträge"
-# custom_start_cord = [3, 1]
-# custom_end_cord = [4, 11]
-# custom_cords = True
 
 # -----------------------------
 # Properties
@@ -173,132 +159,6 @@ class NotionAPI:
         chart.set_source_url(embedurl)
         chart.move_to(table_anchor, "after")
 
-# -----------------------------
-# Legacy Notion Class with Selenium
-# -----------------------------
-class NotionCharts:
-    def __init__(self, notion_link, data_name, start_cord, end_cord):
-        self.notion_link = notion_link
-        self.data_name = data_name
-        self.start_cord = start_cord
-        self.end_cord = end_cord
-        self.bot = webdriver.Firefox()
-
-    def fetch_site(self):
-        bot = self.bot
-        bot.get(self.notion_link)
-
-    def get_data_frame(self):
-        bot = self.bot
-
-        delay = 10
-        try:
-            e = WebDriverWait(bot, delay).until(EC.visibility_of_element_located((By.CLASS_NAME, 'notion-collection-item')))
-        except TimeoutException:
-            print('failed - Timeout')
-
-        time.sleep(3)
-        print('success\n')
-        print('finding table...')
-
-        frames = bot.find_elements_by_class_name('notion-collection_view-block')
-        frames_final = []
-        for f in frames:
-            if f.value_of_css_property("position") == 'static':
-                try:
-                    height_of_first_child = f.find_elements_by_tag_name("div")[0].value_of_css_property("height")
-                    if height_of_first_child == '42px':
-                        frames_final.append(f)
-                except:
-                    pass
-
-        tables_raw = bot.find_elements_by_class_name('notion-scroller')
-        tables_final = []
-        for t in tables_raw:
-            if "vertical" not in t.get_attribute("class"):
-                tables_final.append(t)
-
-        # Find the right table
-        for f in frames_final:
-            inner = f.find_elements_by_css_selector('div, a')
-            for i in inner:
-                if inner.index(i) == 4:
-                    name_of_table = i.text.strip()
-                    # print(name_of_table)
-                    if name_of_table == self.data_name:
-                        index = frames_final.index(f)
-
-        table = tables_final[index]
-        table_header_row = []
-
-        notion_table_view = table.find_element_by_tag_name('div')
-        table_container = notion_table_view.find_element_by_tag_name('div')
-        table_header_c1 = table_container.find_element_by_tag_name('div')
-        table_header_c2 = table_header_c1.find_element_by_tag_name('div')
-        table_header_row_raw = table_header_c2.find_elements_by_class_name('notion-table-view-header-cell')
-        if custom_cords:
-            for i in table_header_row_raw[self.start_cord[0] - 1 : self.end_cord[0]]:
-                table_header_row.append(i.text.strip())
-        else:
-            for i in table_header_row_raw:
-                table_header_row.append(i.text.strip())
-
-        print('success\n')
-        print('scraping data...')
-
-        data = []
-        data.append(table_header_row)
-        rows = table.find_elements_by_class_name('notion-collection-item')
-        if not custom_cords:
-            self.start_cord = [1, 1]
-            self.end_cord = [0, len(rows)]
-        for r in rows[self.start_cord[1] - 1 : self.end_cord[1]]:
-            row = []
-            childs = r.find_elements_by_css_selector('*')
-            childs_clean = []
-            for c in childs:
-                parent_elem_class = c.find_element_by_xpath("..").get_attribute('class')
-                try:
-                    if 'notion-collection-item' in parent_elem_class:
-                        childs_clean.append(c)
-                except:
-                    pass
-            if not custom_cords:
-                self.end_cord = [len(childs_clean), 0]
-            for c in childs_clean[self.start_cord[0] - 1 : self.end_cord[0]]:
-                try:
-                    content = c.text
-                    if content == "":
-                        row.append("")
-                    else:
-                        ch1 = content[0]
-                        che = content[-1]
-                        if che == '€' or che == '$' or che == '£' or che == '%':
-                            content = content[:-1]
-                        if ch1 == '€' or ch1 == '$' or ch1 == '£' or ch1 == '%':
-                            content = content[1:]
-                        try:
-                            content = float(content)
-                            isnumerical = True
-                        except:
-                            isnumerical = False
-                        if not skip_non_numerical_values:
-                            row.append(content)
-                        elif isnumerical or childs_clean.index(c) == 0:
-                            row.append(content)
-                        else:
-                            row.append("")
-
-                except:
-                    pass
-            data.append(row)
-
-        frame_id = [self.notion_link + '§' + self.data_name + '§' + str(len(data[0])) + '§' + str(len(data))]
-        data.insert(0, frame_id)
-        print('success\n')
-        # print(data)
-        self.bot.close()
-        return data
 
 # -----------------------------
 # Google Sheets Class
@@ -346,15 +206,6 @@ def generate_chart_link(range, chart_type, stacked, theme, legend_position):
     link = 'https://notion.vip/notion-chart/draw.html?config_documentId=1B3c20WmqMQMCCaSvw5PPMBHTdLm1F82HePtC-7b1QRI&config_sheetName=Tabellenblatt1&config_dataRange=' + range + "&config_chartType=" + chart_type + "&option_isStacked=" + stacked + "&config_theme=" + theme + "&option_legend_position=" + legend_position
     print('success\n')
     return link
-
-
-
-# -----------------------------
-# Legacy Notion Object with Selenium
-# -----------------------------
-# Notion = NotionCharts(url, name, custom_start_cord, custom_end_cord)
-# Notion.fetch_site()
-# data_frame = Notion.get_data_frame()
 
 
 # -----------------------------
