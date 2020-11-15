@@ -3,6 +3,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
+
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -14,30 +15,51 @@ from notion.user import *
 from datetime import datetime
 import time
 
-print('getting Notion page...')
+# takes about 10sec
 
+# -----------------------------
+# Set up Google Docs Connection
+# -----------------------------
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 sheets_client = gspread.authorize(creds)
 
-
+# -----------------------------
+# Set up Notion Connection
+# -----------------------------
 token = 'cd8da425c7db1922f62fb6f7fffde69cd874130211bed1ebe25722bb3226053483de5b05753c7aa2bd168fb3886c41db1999599d8feda244f5d80364be23da228a42f03e249342d56d67adfbdcb9'
 tableurl = 'https://www.notion.so/samuelwoelfl/1bdab4520874431ab2baa3bae6f3aba2?v=19ba09f26eb8461b9fd2c99a29e90091'
 pageurl = 'https://www.notion.so/samuelwoelfl/Smoking-Page-d8279f2b8015487ca08e5cd261f597ab'
 
+# -----------------------------
+# Legacy for Notion fetching with Selenium
+# -----------------------------
 # url = 'https://www.notion.so/samuelwoelfl/Freelance-Space-4fc251bb5b5c4e2fad04b1b659f40ee4'
 # name = "Aufträge"
-custom_start_cord = [3, 1]
-custom_end_cord = [4, 11]
-custom_cords = True
-skip_non_numerical_values = True
+# custom_start_cord = [3, 1]
+# custom_end_cord = [4, 11]
+# custom_cords = True
+
+# -----------------------------
+# Properties
+# -----------------------------
+skip_non_numerical_values = True  # mostly necessary because notionvip charts will throw an error when getting text values
+chart_type = 'column'  # line, bar, column, donut, pie
+stacked = 'false'  # true, false
+theme = 'lightMode'  # lightMode, darkMode
+legend_position = 'bottom'  # left, bottom
 
 
+# -----------------------------
+# Notion Api Class
+# -----------------------------
 class NotionAPI:
     def __init__(self, token):
         self.notion_client = NotionClient(token_v2=token)
 
-    def delete_empty_columns(self, data):
+    # clears all the empty columns so notionvip can work better with the data
+    @staticmethod
+    def delete_empty_columns(data):
         indexes = []
         for ri, r in enumerate(data[1:]):
             for ci, c in enumerate(r):
@@ -48,46 +70,39 @@ class NotionAPI:
         for ri, r in enumerate(data):
             for i in sorted(indexes, reverse=True):
                 r.pop(i)
-        # print(data)
         return data
 
-
+    # fetches your Notion database values
     def get_data(self, tableurl):
         table_view = self.notion_client.get_collection_view(tableurl)
-        other_data = table_view.collection.get_schema_properties()
-        print(other_data)
         properties = []
         for p in table_view.collection.get_schema_properties():
             if p['id'] == 'title':
                 properties.insert(0, p['name'])
-            else:
+            elif p['type'] != 'formula' and p['type'] != 'rollup':
                 properties.append(p['name'])
 
-        data = []
-        data.append(properties)
-        for row in table_view.collection.get_rows():
-            row_title = row.title
-            row_dict = row.get_all_properties()
-            # print(row_title)
+        # create data frame and append database properties
+        data = [properties]
+
+        for r in table_view.collection.get_rows():
+            row_title = r.title
+            row_dict = r.get_all_properties()
             row = []
-            print(row_dict)
             for i in row_dict:
-                print(i, ': ', row_dict[i])
-                key = i
                 value = row_dict[i]
 
                 try:
                     value = value.start
                     value = value.strftime("%d.%m.%Y")
-                    isDate = True
+                    is_date = True
                 except:
-                    isDate = False
+                    is_date = False
 
 
                 if type(value) == list:
-                    # print('ist ne liste')
                     if len(value) > 0:
-                        # print('ist länger als 0')
+
                         try:
                             value[0].full_name
                             isuser = True
@@ -101,42 +116,34 @@ class NotionAPI:
                             ispage = False
 
                         if not isuser and not ispage:
-                            if not value[0]:
-                                # print('erstes value existiert nicht')
-                                # print('""')
-                                value = ""
-                            else:
-                                value = ", ".join(value)
-                        elif isuser:
                             if value[0]:
-                                users = []
-                                for u in value:
-                                    name = u.full_name
-                                    users.append(name)
-                                value = ", ".join(users)
+                                value = ", ".join(value)
+                            else:
+                                value = ""
+                        elif isuser or ispage:
+                            if value[0]:
+                                items = []
+                                for z in value:
+                                    try:
+                                        item = z.full_name
+                                    except:
+                                        item = z.title
+                                    items.append(item)
+                                value = ", ".join(items)
                             else:
                                 value = ""
                         else:
-                            if value[0]:
-                                titles = []
-                                for t in value:
-                                    title = t.title
-                                    titles.append(title)
-                                value = ", ".join(titles)
-                            else:
-                                value = ""
+                            value = ""
                     else:
                         value = ""
-
                 try:
-                    if value != True and value != False and not isDate:
+                    if value != True and value != False and not is_date:
                         value = float(value)
                         is_numerical = True
                 except:
                     is_numerical = False
 
                 if not value or value == "":
-                    # print('""')
                     row.append("")
                 elif not skip_non_numerical_values:
                     if value == row_title:
@@ -151,27 +158,24 @@ class NotionAPI:
                 else:
                     row.append("")
 
-                print(f'{value}\n')
-
             data.append(row)
-            # print('\n')
 
-
-        print(data)
         data = self.delete_empty_columns(data)
         frame_id = [tableurl + '§' + str(len(data[0])) + '§' + str(len(data))]
         data.insert(0, frame_id)
         return data
 
-
-    def insert_chart(self, pageurl):
+    # insert the created chart in notion
+    def insert_chart(self, pageurl, embedurl):
         page = self.notion_client.get_block(pageurl)
         table_anchor = self.notion_client.get_block(tableurl)
-        chart = page.children.add_new(EmbedBlock, width=900, heigh=500)
-        chart.set_source_url("https://notion.vip/notion-chart/draw.html?config_documentId=1ZF36sYn-zKctS2ZhY7HAjRQWYpQm4ETx5CAx0UCV9og&config_sheetName=Tabelle1&config_dataRange=C1%3AE161&config_chartType=line&config_theme=lightMode&option_legend_position=bottom")
+        chart = page.children.add_new(EmbedBlock, width=900, height=400)
+        chart.set_source_url(embedurl)
         chart.move_to(table_anchor, "after")
 
-
+# -----------------------------
+# Legacy Notion Class with Selenium
+# -----------------------------
 class NotionCharts:
     def __init__(self, notion_link, data_name, start_cord, end_cord):
         self.notion_link = notion_link
@@ -284,7 +288,7 @@ class NotionCharts:
                             row.append(content)
                         else:
                             row.append("")
-                    
+
                 except:
                     pass
             data.append(row)
@@ -296,15 +300,19 @@ class NotionCharts:
         self.bot.close()
         return data
 
-
+# -----------------------------
+# Google Sheets Class
+# -----------------------------
 class GoogleSheets:
     def __init__(self):
         self.sheet = sheets_client.open("Notion Charts").get_worksheet(0)
         self.id = ""
 
+    # writes one row in google doc
     def write_row(self, row, index):
         self.sheet.insert_row(row, index)
 
+    # writes data frame to google doc and finds start row
     def write_frame_get_start(self, frame):
         print('transfer data to google sheets...')
         start = len(self.sheet.get_all_values()) + 2
@@ -317,7 +325,7 @@ class GoogleSheets:
         print('success\n')
         return start
 
-
+# gets range of table for the link
 def get_range(start, id):
     indeces = []
     for i, ch in enumerate(id):
@@ -332,7 +340,7 @@ def get_range(start, id):
     endcord = str(endcolumn) + str(endrow)
     return start_cord + "%3A" + endcord
 
-
+# generates the link for the chart
 def generate_chart_link(range, chart_type, stacked, theme, legend_position):
     print('generating link...')
     link = 'https://notion.vip/notion-chart/draw.html?config_documentId=1B3c20WmqMQMCCaSvw5PPMBHTdLm1F82HePtC-7b1QRI&config_sheetName=Tabellenblatt1&config_dataRange=' + range + "&config_chartType=" + chart_type + "&option_isStacked=" + stacked + "&config_theme=" + theme + "&option_legend_position=" + legend_position
@@ -341,39 +349,38 @@ def generate_chart_link(range, chart_type, stacked, theme, legend_position):
 
 
 
-
+# -----------------------------
+# Legacy Notion Object with Selenium
+# -----------------------------
 # Notion = NotionCharts(url, name, custom_start_cord, custom_end_cord)
 # Notion.fetch_site()
 # data_frame = Notion.get_data_frame()
 
 
-
+# -----------------------------
+# Fetch Notion data
+# -----------------------------
 Notion = NotionAPI(token)
 data_frame = Notion.get_data(tableurl)
-print(data_frame)
 
-# doc = GoogleSheets()
-# start = doc.write_frame_get_start(data_frame)
-# id = doc.id[0]
-# range = get_range(start, id)
+# -----------------------------
+# Write it to Google Doc
+# -----------------------------
+doc = GoogleSheets()
+start = doc.write_frame_get_start(data_frame)
+id = doc.id[0]
+range = get_range(start, id)
 
+# -----------------------------
+# Generate Link
+# -----------------------------
+link = generate_chart_link(range, chart_type, stacked, theme, legend_position)
+print(f'\n Link:\n {link}')
 
-#Properties
-
-#line, bar, column, donut, pie
-chart_type = 'column'
-
-#true, false
-stacked = 'false'
-
-#lightMode, darkMode
-theme = 'lightMode'
-
-#left, bottom
-legend_position = 'bottom'
-#
-# link = generate_chart_link(range, chart_type, stacked, theme, legend_position)
-# print(f'\n Link:\n {link}')
+# -----------------------------
+# Instert Chart with Notion Embed
+# -----------------------------
+Notion.insert_chart(pageurl, link)
 
 
 
