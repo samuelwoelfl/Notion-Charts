@@ -6,19 +6,37 @@
         <div class="heading">
             <h1>Charts for Notion</h1>
             <h2>Generate embeddable charts — beautifully optimized for Notion.</h2>
+            <div class="ctas">
+                <a href="#form" class="button start">Create a Chart</a>
+                <a href="https://www.notion.so/nuttlabs/Jellyfish-Inc-Digital-Strategy-Snapshot-d4295448c72b4056af9b06fa8ece36d4" class="button demo">View Demo</a>
+            </div>
+            <img src="../static/img/screenshot.png" alt="">
             <p>This is a small hobby project of mine I did with the <a href="https://github.com/jamalex/notion-py">unofficial Notion-API</a> and the google sheet chart tool
             <a href="https://www.notion.vip/charts/">Notionvip Charts</a>. Right now the API isn't capable of fetching values from formula and rollup columns. If you want to read more about this issues, it's already requested on GitHub
             <a href="https://github.com/jamalex/notion-py/issues/76">here</a>. I'm hoping to implement these as well one day, maybe if Notion releases it's official API.
-            <br> Please note that it can take some time, depending on the size of your table, because the values first need to transferred to google sheets which takes some seconds.
+            <br> Please note that it can take some time, depending on the size of your table, because the values first need to be transferred to google sheets which takes some seconds.
             </p>
         </div>
-        <div class="form">
+        <div class="form" id="form">
+            <h1>Create your Chart</h1>
             <div class="data">
-                <form action="#" method="POST">
+                <form action="#bottom" method="POST">
                     {{ form.hidden_tag() }}
                     <div class="label">Notion token</div>
                     <div class="description">To get your Notion token you need to open your Notion in the browser. You need to be logged in. Then just hit <span class="code">F12</span> on your keyboard. In the new window you need to go to <span class="code">Application</span> in the menu bar. If you can't see it you nee to click the <span class="code">&#62;&#62;</span> to see all categories. In the Application tab go to Cookies and expand it. Click on <span class="code">https://www.notion.so</span>. In the list search for <span class="code">token_v2</span> and copy paste the value of it.</div>
                     {{ form.token }}
+                    <p class="subtitle" style="display:none;">We've inserted the token you were using last time, to make it easier for you. If you don't want it, just delete it.</p>
+                    <p class="token_holder" style="display:none">{{ token }}</p>
+                    <script>
+                        $( document ).ready(function() {
+                            token = $('.token_holder').text();
+                            if (token.length > 1 && token !== 'None') {
+                                console.log(token)
+                                $('#token').val(token);
+                                $('.subtitle').css('display', 'block');
+                            }
+                        });
+                    </script>
                     <div class="label">Notion Page</div>
                     <div class="description">Go to the Notion page that your table is in. Copy the link of it by clicking on <span class="code">Share</span> and then <span class="code">Copy link</span></div>
                     {{ form.pageurl }}
@@ -27,7 +45,7 @@
                     {{ form.tableurl }}
                     <div class="chart">
                         <div class="type">
-                            <div class="label">Choose the chart type that you want</div>
+                            <div class="label">Chart type</div>
                             {{ form.chart_type }}
                         </div>
                         <div class="stack">
@@ -59,7 +77,7 @@
                 </form>
             </div>
         </div>
-        <div class="success">
+        <div id="bottom" class="success {{ success }}">
             <p class="false">{{ text }}</p>
             <img src="{{ source }}" alt="">
         </div>

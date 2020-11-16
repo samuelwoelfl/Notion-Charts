@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, make_response, request
 from wtforms import *
 from flask_wtf import FlaskForm
 from wtforms.validators import InputRequired
@@ -58,9 +58,16 @@ def home():
         link = notion_charts.generate_chart_link(range, chart_type, stacked, theme, legend_position)
 
         Notion.insert_chart(pageurl, link)
-        return render_template('index.html', form=form, text='Your chart got inserted!', source='../static/img/party_face.png')
+
+        resp = make_response(render_template('index.html', form=form, text='Your chart got inserted!', source='../static/img/party_face.png', success='display'))
+        resp.set_cookie('token_v2', token)
+        return resp
     else:
-        return render_template('index.html', form=form, text='')
+        try:
+            token = request.cookies.get('token_v2')
+        except:
+            token = ''
+        return render_template('index.html', form=form, text='', source='', success='', token=token)
 
 
 @app.route("/table/<data>")

@@ -4,7 +4,7 @@
   --accentcolorscnd: #3072FF;
   --bgcolor: rgb(255, 254, 252);
   --font: rgb(4, 4, 4);
-  --headerhight: 65px;
+  --headerhight: 80px;
   --pagewidth: 80%;
   --borderradius: 5px;
 }
@@ -67,8 +67,6 @@ a.anchor {
 header {
   width: 100%;
   height: var(--headerhight);
-  position: fixed;
-  background-color: #fff;
   z-index: 99;
 }
 
@@ -80,6 +78,50 @@ header .inner {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+header .logo {
+  width: 20%;
+}
+
+header .logo img {
+  width: 13%;
+}
+
+
+header .github {
+  display: flex;
+  flex-direction: row;
+  justify-content:flex-end;
+  align-items: center;
+  border: 1px solid var(--accentcolordark);
+  box-shadow: rgba(15, 15, 15, 0.1) 0px 1px 2px;
+  padding: 20px 22px;
+  font-weight: 500;
+  height: 36px;
+  border-radius: 3px;
+  color: var(--accentcolor);
+  transition: .1s ease;
+}
+
+header .github svg {
+  height: 20px;
+  margin-right: 8px;
+
+}
+
+header .github svg path {
+  fill: var(--accentcolor);
+  transition: .1s ease;
+}
+
+header .github:hover {
+  background-color: var(--accentcolor);
+  color: #fff;
+}
+
+header .github:hover svg path {
+  fill: #ffF;
 }
 
 .wrapper {
@@ -95,6 +137,55 @@ header .inner {
 
 .heading {
   margin-bottom: 10vh;
+}
+
+.heading img {
+  width: 70%;
+  display: block;
+  margin: 1vh auto 5vh auto;
+  border-radius: 5px;
+  box-shadow: 0px 40px 25px -25px #00000033;
+}
+
+.heading .ctas {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items:center;
+  margin: 5vh 0 10vh 0;
+}
+
+.heading .ctas .button {
+  margin-top: 65px;
+  width: 20%;
+  transition: .1s ease-out;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  height: 46px;
+  border-radius: 3px;
+  color: white;
+  font-size: 14px;
+  line-height: 1;
+  padding-left: 12px;
+  padding-right: 12px;
+  font-weight: 500;
+  background: var(--accentcolor);
+  border: 1px solid var(--accentcolordark);
+  box-shadow: rgba(15, 15, 15, 0.1) 0px 1px 2px;
+  text-align: center;
+  margin: 0 5px;
+}
+
+.heading .ctas .button.demo {
+  background: #fff;
+  color: var(--accentcolor);
+}
+
+.heading .ctas .button:hover {
+  transform: scale(1.03);
 }
 
 .heading p {
@@ -121,6 +212,14 @@ header .inner {
 
 .form {
   width: 100%;
+  margin-top: 10vh;
+}
+
+.form h1 {
+  max-width: 600px;
+  margin: 0 auto 60px auto;
+  padding-top: 4vh;
+  font-size: 2em;
 }
 
 .form .data {
@@ -133,13 +232,27 @@ header .inner {
 
 .form form {
   min-width: 30%;
-  max-width: 550px;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
   margin-bottom: 3vh;
 }
 
+.form .subtitle {
+  margin-top: -45px;
+  margin-bottom: 50px;
+  color: #888;
+  font-size: .9em;
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+
 .success {
+  display: none;
+}
+
+.success.display {
   padding: 16px 16px 16px 12px;
   display: flex;
   flex-direction: row;
@@ -162,7 +275,7 @@ header .inner {
 
 .false {
   text-align:center;
-  margin-left: 12px;
+  margin-right: 12px;
 }
 
 
