@@ -58,7 +58,7 @@ def home():
         link = notion_charts.generate_chart_link(range, chart_type, stacked, theme, legend_position)
 
         Notion.insert_chart(pageurl, link)
-        return render_template('index.html', form=form, text='finished', source='../static/img/party_face.png')
+        return render_template('index.html', form=form, text='Your chart got inserted!', source='../static/img/party_face.png')
     else:
         return render_template('index.html', form=form, text='')
 

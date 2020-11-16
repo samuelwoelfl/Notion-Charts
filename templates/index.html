@@ -8,7 +8,9 @@
             <h2>Generate embeddable charts — beautifully optimized for Notion.</h2>
             <p>This is a small hobby project of mine I did with the <a href="https://github.com/jamalex/notion-py">unofficial Notion-API</a> and the google sheet chart tool
             <a href="https://www.notion.vip/charts/">Notionvip Charts</a>. Right now the API isn't capable of fetching values from formula and rollup columns. If you want to read more about this issues, it's already requested on GitHub
-            <a href="https://github.com/jamalex/notion-py/issues/76">here</a>. I'm hoping to implement these as well one day, maybe if Notion releases it's official API. </p>
+            <a href="https://github.com/jamalex/notion-py/issues/76">here</a>. I'm hoping to implement these as well one day, maybe if Notion releases it's official API.
+            <br> Please note that it can take some time, depending on the size of your table, because the values first need to transferred to google sheets which takes some seconds.
+            </p>
         </div>
         <div class="form">
             <div class="data">
@@ -58,8 +60,8 @@
             </div>
         </div>
         <div class="success">
-            <img src="{{ source }}" alt="">
             <p class="false">{{ text }}</p>
+            <img src="{{ source }}" alt="">
         </div>
     </div>
 </div>
