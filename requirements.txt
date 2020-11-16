@@ -1,3 +1,6 @@
+wtforms
+notion
+google-api-python-client
 cachetools==4.1.0
 click==7.1.2
 certifi==2020.4.5.1
@@ -11,3 +14,4 @@ openpyxl==3.0.3
 pyasn1==0.4.8
 urllib3==1.25.9
 werkzeug==1.0.1
+gspread==3.6.0

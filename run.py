@@ -1,12 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, redirect
 from wtforms import *
 from flask_wtf import FlaskForm
-from wtforms.validators import InputRequired, Email, Length
-from datetime import datetime
+from wtforms.validators import InputRequired
 import notion_charts
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '6EFiWos8bvji3dps8H9J'
+
 
 class LoginForm(FlaskForm):
     token = StringField('token', validators=[InputRequired()], render_kw={"placeholder": "156 char long code"})
@@ -61,6 +61,7 @@ def home():
         return render_template('index.html', form=form, text='Your chart got inserted!', source='../static/img/party_face.png')
     else:
         return render_template('index.html', form=form, text='')
+
 
 @app.route("/table/<data>")
 def table(data):
