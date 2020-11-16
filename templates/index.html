@@ -1,0 +1,40 @@
+{% extends "template.html" %}
+{% block content %}
+
+<div class="wrapper">
+    <div class="content">
+        <div class="heading">
+            <h1>Charts for Notion</h1>
+            <h2>Generate embeddable charts — beautifully optimized for Notion.</h2>
+        </div>
+        <div class="form">
+            <div class="data">
+                <form action="#" method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="label">Notion token</div>
+                    <div class="description">To get your Notion token you need to open your Notion in the browser. You need to be logged in. Then just hit <span class="code">F12</span> on your keyboard. In the new window you need to go to <span class="code">Application</span> in the menu bar. If you can't see it you nee to click the <span class="code">&#62;&#62;</span> to see all categories. In the Application tab go to Cookies and expand it. Click on <span class="code">https://www.notion.so</span>. In the list search for <span class="code">token_v2</span> and copy paste the value of it.</div>
+                    {{ form.token }}
+                    <div class="label">Notion Page</div>
+                    <div class="description">Go to the Notion page that your table is in. Copy the link of it by clicking on <span class="code">Share</span> and then <span class="code">Copy link</span></div>
+                    {{ form.pageurl }}
+                    <div class="label">Notion Table</div>
+                    <div class="description">Go to the Notion table that you want to use for the chart and copy it's link by clicking on the 6 dots besides it and click on <span class="code">Copy link</span></div>
+                    {{ form.tableurl }}
+                    <div class="label">Choose the chart type that you want</div>
+                    {{ form.chart_type }}
+                    <div class="label">Stack your bars?</div>
+                    {{ form.stacked }}
+                    <div class="label">Notion Theme</div>
+                    {{ form.theme }}
+                    <div class="label">Legend Position</div>
+                    {{ form.legend_position }}
+                    <div class="label">Skip non numerial values?</div>
+                    {{ form.skip_non_numerical_values }}
+                  <button type="submit">Abschicken</button>
+                </form>
+                <p class="false">{{ text }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

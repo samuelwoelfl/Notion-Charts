@@ -8,28 +8,30 @@ from notion.block import *
 # takes about 10sec
 
 # -----------------------------
-# Set up Google Docs Connection
-# -----------------------------
-scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
-sheets_client = gspread.authorize(creds)
-
-# -----------------------------
 # Set up Notion Connection
 # -----------------------------
 token = 'cd8da425c7db1922f62fb6f7fffde69cd874130211bed1ebe25722bb3226053483de5b05753c7aa2bd168fb3886c41db1999599d8feda244f5d80364be23da228a42f03e249342d56d67adfbdcb9'
 tableurl = 'https://www.notion.so/samuelwoelfl/8f649c46e7b44eb78804d892e69eca4f?v=07d2c483af0a4c03b302ea4df4d395c1'
 pageurl = 'https://www.notion.so/samuelwoelfl/Freelance-Space-4fc251bb5b5c4e2fad04b1b659f40ee4'
 
+# -----------------------------
+# Set up Google Docs Connection
+# -----------------------------
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+sheets_client = gspread.authorize(creds)
+
+
+
 
 # -----------------------------
 # Properties
 # -----------------------------
-skip_non_numerical_values = True  # mostly necessary because notionvip charts will throw an error when getting text values
-chart_type = 'column'  # line, bar, column, donut, pie
-stacked = 'false'  # true, false
-theme = 'lightMode'  # lightMode, darkMode
-legend_position = 'bottom'  # left, bottom
+# skip_non_numerical_values = True  # mostly necessary because notionvip charts will throw an error when getting text values
+# chart_type = 'column'  # line, bar, column, donut, pie
+# stacked = 'false'  # true, false
+# theme = 'lightMode'  # lightMode, darkMode
+# legend_position = 'bottom'  # left, bottom
 
 
 # -----------------------------
@@ -55,7 +57,7 @@ class NotionAPI:
         return data
 
     # fetches your Notion database values
-    def get_data(self, tableurl):
+    def get_data(self, tableurl, skip_non_numerical_values):
         table_view = self.notion_client.get_collection_view(tableurl)
         properties = []
         for p in table_view.collection.get_schema_properties():
@@ -209,27 +211,27 @@ def generate_chart_link(range, chart_type, stacked, theme, legend_position):
 # -----------------------------
 # Fetch Notion data
 # -----------------------------
-Notion = NotionAPI(token)
-data_frame = Notion.get_data(tableurl)
+# Notion = NotionAPI(token)
+# data_frame = Notion.get_data(tableurl)
 
 # -----------------------------
 # Write it to Google Doc
 # -----------------------------
-doc = GoogleSheets()
-start = doc.write_frame_get_start(data_frame)
-id = doc.id[0]
-range = get_range(start, id)
+# doc = GoogleSheets()
+# start = doc.write_frame_get_start(data_frame)
+# id = doc.id[0]
+# range = get_range(start, id)
 
 # -----------------------------
 # Generate Link
 # -----------------------------
-link = generate_chart_link(range, chart_type, stacked, theme, legend_position)
-print(f'\n Link:\n {link}')
+# link = generate_chart_link(range, chart_type, stacked, theme, legend_position)
+# print(f'\n Link:\n {link}')
 
 # -----------------------------
 # Instert Chart with Notion Embed
 # -----------------------------
-Notion.insert_chart(pageurl, link)
+# Notion.insert_chart(pageurl, link)
 
 
 
