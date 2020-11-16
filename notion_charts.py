@@ -17,6 +17,7 @@ pageurl = 'https://www.notion.so/samuelwoelfl/Freelance-Space-4fc251bb5b5c4e2fad
 # -----------------------------
 # Set up Google Docs Connection
 # -----------------------------
+
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 sheets_client = gspread.authorize(creds)

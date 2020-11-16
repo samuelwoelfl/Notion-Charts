@@ -27,7 +27,7 @@ class LoginForm(FlaskForm):
     skip_non_numerical_values = BooleanField('skip_non_numerical_values', validators=[InputRequired()])
 
 
-@app.route("/home", methods=["POST", "GET"])
+@app.route("/", methods=["POST", "GET"])
 def home():
     form = LoginForm()
     if form.validate_on_submit():
