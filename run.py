@@ -12,13 +12,19 @@ class LoginForm(FlaskForm):
     token = StringField('token', validators=[InputRequired()], render_kw={"placeholder": "156 char long code"})
     pageurl = StringField('pageurl', validators=[InputRequired()], render_kw={"placeholder": "Link to your page"})
     tableurl = StringField('tableurl', validators=[InputRequired()], render_kw={"placeholder": "Link to your table"})
+
     chart_types = [('bar', 'Bar (Horizontal)'), ('column', 'Column (Vertical)'), ('line', 'Line'), ('pie', 'Pie'), ('donut', 'Donut')]
-    chart_type = SelectField('chart_type', choices = chart_types, validators=[InputRequired()])
-    # chart_type = StringField('chart_type', validators=[InputRequired()], render_kw={"placeholder": "Chart Type"})
-    stacked = StringField('stacked', validators=[InputRequired()], render_kw={"placeholder": "Stacked?"})
-    theme = StringField('theme', validators=[InputRequired()], render_kw={"placeholder": "Notion Theme"})
-    legend_position = StringField('legend_position', validators=[InputRequired()], render_kw={"placeholder": "Legend Position"})
-    skip_non_numerical_values = StringField('skip_non_numerical_values', validators=[InputRequired()], render_kw={"placeholder": "Skip non numerical Values?"})
+    chart_type = SelectField('chart_type', choices=chart_types, validators=[InputRequired()])
+
+    stacked = BooleanField('stacked', render_kw={"placeholder": "Stacked?"})
+
+    theme_options = [('lightTheme', 'Light Mode'), ('darkTheme', 'Dark Mode')]
+    theme = SelectField('theme', choices=theme_options, validators=[InputRequired()])
+
+    legend_options = [('right', 'Right'), ('bottom', 'Bottom')]
+    legend_position = SelectField('legend_position', choices=legend_options, validators=[InputRequired()])
+
+    skip_non_numerical_values = BooleanField('skip_non_numerical_values', validators=[InputRequired()])
 
 
 @app.route("/home", methods=["POST", "GET"])
@@ -29,8 +35,14 @@ def home():
         pageurl = form.pageurl.data
         tableurl = form.tableurl.data
         chart_type = form.chart_type.data
-        print(chart_type)
         stacked = form.stacked.data
+        if stacked:
+            if chart_type == 'bar' or chart_type == 'column':
+                stacked = 'true'
+            else:
+                stacked = 'false'
+        else:
+            stacked = 'false'
         theme = form.theme.data
         legend_position = form.legend_position.data
         skip_non_numerical_values = form.skip_non_numerical_values.data
@@ -46,7 +58,7 @@ def home():
         link = notion_charts.generate_chart_link(range, chart_type, stacked, theme, legend_position)
 
         Notion.insert_chart(pageurl, link)
-        return render_template('index.html', form=form, text='finished')
+        return render_template('index.html', form=form, text='finished', source='../static/img/party_face.png')
     else:
         return render_template('index.html', form=form, text='')
 

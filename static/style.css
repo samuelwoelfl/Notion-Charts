@@ -49,6 +49,7 @@ h2 {
   font-size: 20px;
   text-align: center;
   font-weight: 400;
+  margin-bottom: 30px;
 }
 
 a {
@@ -93,7 +94,29 @@ header .inner {
 }
 
 .heading {
-  margin-bottom: 4.8%;
+  margin-bottom: 10vh;
+}
+
+.heading p {
+  color: #444;
+  font-weight: 400;
+  line-height: 1.6;
+  font-size: 0.96em;
+  width: 90%;
+  max-width: 606px;
+  margin: 0 auto;
+}
+
+.heading p a {
+  transition: .2s ease;
+  color: #999;
+  font-weight:400;
+  border-bottom: 1px solid #ddd;
+}
+
+.heading p a:hover {
+  color: #444;
+  border-color: #444;
 }
 
 .form {
@@ -113,19 +136,49 @@ header .inner {
   max-width: 550px;
   display: flex;
   flex-direction: column;
+  margin-bottom: 3vh;
+}
+
+.success {
+  padding: 16px 16px 16px 12px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  margin: 0 auto;
+  border-radius: 3px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  background: rgba(235, 236, 237, 0.3);
+}
+}
+
+.false {
+  text-align:center;
+  margin-bottom: 13vh
+}
+
+.false img {
+  height: 25px;
 }
 
 form .label {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 2%;
+  margin-bottom: 10px;
 }
 
 form .description {
-  margin-bottom: 5%;
+  margin-bottom: 3%;
   color: #777;
-  line-height: 1.7;
+  line-height: 1.5;
+}
+
+form .description.final {
+  text-align: center;
 }
 
 .description .code {
@@ -138,7 +191,32 @@ form .description {
   padding: 0.2em 0.4em;
 }
 
-input {
+.chart {
+  display: flex;
+  flex-direction: row;
+  justify-content:space-between;
+  align-items: flex-start;
+}
+
+.chart .stack {
+  width: 35%;
+  margin-left: 4%;
+  text-align: left;
+}
+
+.chart .type {
+  width: 100%;
+}
+
+.chart .type select {
+  width: 100%;
+}
+
+.chart .stack input {
+  margin-top: 20px;
+}
+
+input:not([type=checkbox]), select {
   font-size: 15px;
   line-height: 26px;
   padding: 4px 10px;
@@ -149,10 +227,12 @@ input {
   height: 36px;
   color: var(--font);
   border: none;
-  margin-bottom: 14%;
+  margin-bottom: 50px;
 }
 
 button {
+  margin-top: 65px;
+  width: 100%;
   transition: background 20ms ease-in 0s;
   cursor: pointer;
   display: inline-flex;
@@ -171,5 +251,9 @@ button {
   border: 1px solid var(--accentcolordark);
   box-shadow: rgba(15, 15, 15, 0.1) 0px 1px 2px;
   text-align: center;
-  width: 90px;
+  margin-bottom: 8px
+}
+
+button:hover {
+  background: var(--accentcolordark)
 }

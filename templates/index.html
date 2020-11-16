@@ -6,6 +6,9 @@
         <div class="heading">
             <h1>Charts for Notion</h1>
             <h2>Generate embeddable charts — beautifully optimized for Notion.</h2>
+            <p>This is a small hobby project of mine I did with the <a href="https://github.com/jamalex/notion-py">unofficial Notion-API</a> and the google sheet chart tool
+            <a href="https://www.notion.vip/charts/">Notionvip Charts</a>. Right now the API isn't capable of fetching values from formula and rollup columns. If you want to read more about this issues, it's already requested on GitHub
+            <a href="https://github.com/jamalex/notion-py/issues/76">here</a>. I'm hoping to implement these as well one day, maybe if Notion releases it's official API. </p>
         </div>
         <div class="form">
             <div class="data">
@@ -20,20 +23,43 @@
                     <div class="label">Notion Table</div>
                     <div class="description">Go to the Notion table that you want to use for the chart and copy it's link by clicking on the 6 dots besides it and click on <span class="code">Copy link</span></div>
                     {{ form.tableurl }}
-                    <div class="label">Choose the chart type that you want</div>
-                    {{ form.chart_type }}
-                    <div class="label">Stack your bars?</div>
-                    {{ form.stacked }}
+                    <div class="chart">
+                        <div class="type">
+                            <div class="label">Choose the chart type that you want</div>
+                            {{ form.chart_type }}
+                        </div>
+                        <div class="stack">
+                            <div class="text bars">Stack your bars?</div>
+                        {{ form.stacked }}
+                        </div>
+                    </div>
+                    <script>
+                    $('select').on('change', function() {
+                        console.log( "changed" );
+                        if ($('select[name=chart_type]').val() == 'bar' || $('select[name=chart_type]').val() == 'column') {
+                            console.log("bar ausgewählt");
+                            $('.stack').css("display", "block");
+                        } else {
+                            $('.stack').css("display", "none");
+                        }
+                      });
+                    </script>
+
                     <div class="label">Notion Theme</div>
                     {{ form.theme }}
                     <div class="label">Legend Position</div>
                     {{ form.legend_position }}
-                    <div class="label">Skip non numerial values?</div>
+                    <div class="label">Skip non numerical values?</div>
+                    <div class="description">Recommended if you have many text fields in your data because notionvip will often get an error then. Titles are preserved and will stay.</div>
                     {{ form.skip_non_numerical_values }}
-                  <button type="submit">Abschicken</button>
+                  <button type="submit">Mage Magic</button>
+                    <div class="description final">The chart created for you will be inserted in your Notion right beneath the corresponding table.</div>
                 </form>
-                <p class="false">{{ text }}</p>
             </div>
+        </div>
+        <div class="success">
+            <img src="{{ source }}" alt="">
+            <p class="false">{{ text }}</p>
         </div>
     </div>
 </div>
