@@ -1,8 +1,8 @@
-from flask import Flask, render_template, redirect, make_response, request
+from flask import Flask, render_template, redirect, make_response, request, jsonify
 from wtforms import *
 from flask_wtf import FlaskForm
 from wtforms.validators import InputRequired
-import notion_charts
+import notion_charts, time
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '6EFiWos8bvji3dps8H9J'
@@ -114,6 +114,25 @@ class LoginForm(FlaskForm):
     skip_non_numerical_values = BooleanField('skip_non_numerical_values', validators=[InputRequired()])
 
 
+status_list = ['Make Magic']
+
+@app.route('/_stuff', methods=['GET'])
+def stuff():
+    # token, pageurl, tableurl, chart_type, stacked, region, resolution, theme, legend_position, skip_non_numerical_values
+    # try:
+    #     for i, a in enumerate(args):
+    #         if i == 0: token = a
+    #         elif i == 1: pageurl = a
+    #         elif i == 2: tableurl = a
+    #         elif i == 3: chart_type = a
+    #         elif i == 4: stacked = a
+    #         elif i == 5: region = a
+    #         elif i == 6: resolution = a
+    #         elif i == 7: theme = a
+    #         elif i == 8: legend_position = a
+    #         elif i == 9: skip_non_numerical_values = a
+    return jsonify(result=status_list[-1])
+
 @app.route("/", methods=["POST", "GET"])
 def home():
     form = LoginForm()
@@ -140,17 +159,18 @@ def home():
         skip_non_numerical_values = form.skip_non_numerical_values.data
 
         Notion = notion_charts.NotionAPI(token)
+        status_list.append('Fetching data from Notion')
         data_frame = Notion.get_data(tableurl, skip_non_numerical_values)
-
+        status_list.append('Transferring data to google sheets')
         Doc = notion_charts.GoogleSheets()
         start = Doc.write_frame_get_start(data_frame)
         id = Doc.id[0]
         range = notion_charts.get_range(start, id)
-
+        status_list.append('Generating link')
         link = notion_charts.generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position)
-
+        status_list.append('Inserting Chart')
         Notion.insert_chart(pageurl, link)
-
+        status_list.append('Make Magic')
         resp = make_response(render_template('index.html', form=form, text='Your chart got inserted!', source='../static/img/party_face.png', success='display'))
         resp.set_cookie('token_v2', token)
         return resp

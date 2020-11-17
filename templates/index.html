@@ -1,7 +1,27 @@
 {% extends "template.html" %}
 {% block content %}
+<script>
+    var intervalID = setInterval(update_values, 1000);
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
-<div class="wrapper">
+    function update_values() {
+        $.getJSON($SCRIPT_ROOT + '/_stuff',
+
+        function(data) {
+            $('#status').text(data.result);
+            if ($('#status').text() !== 'Make Magic') {
+                $('#status').addClass('passive');
+                console.log($('#status').text())
+            }
+        });
+    };
+
+    function stopTextColor() {
+        clearInterval(intervalID);
+    }
+</script>
+
+<div class="wrapper")>
     <div class="content">
         <div class="heading">
             <h1>Charts for Notion</h1>
@@ -88,7 +108,7 @@
                     <div class="label">Skip non numerical values?</div>
                     <div class="description">Recommended if you have many text fields in your data because notionvip will often get an error then. Titles are preserved and will stay.</div>
                     {{ form.skip_non_numerical_values }}
-                  <button type="submit">Mage Magic</button>
+                  <button id="status" type="submit">Mage Magic</button>
                     <div class="description final">The chart created for you will be inserted in your Notion right beneath the corresponding table.</div>
                 </form>
             </div>
@@ -97,6 +117,10 @@
             <p class="false">{{ text }}</p>
             <img src="{{ source }}" alt="">
         </div>
+        <script>
+            document.getElementById("status").innerHTML;
+            console.log(document.getElementById("status").innerHTML);
+        </script>
     </div>
 </div>
 {% endblock content %}

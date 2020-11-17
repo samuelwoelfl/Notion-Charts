@@ -373,3 +373,9 @@ button {
 button:hover {
   background: var(--accentcolordark)
 }
+
+button.passive {
+  background-color: #eee;
+  color: #aaa;;
+  border-color: #ddd;
+}

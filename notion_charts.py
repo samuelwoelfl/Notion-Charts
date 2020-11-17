@@ -31,14 +31,14 @@ maps_api_key = 'AIzaSyCsUG_Kh1M6Lf45Ue3FmKTFJ9KxNx5WO2g'
 # -----------------------------
 # Properties
 # -----------------------------
-# skip_non_numerical_values = True  # mostly necessary because notionvip charts will throw an error when getting text values
+skip_non_numerical_values = False  # mostly necessary because notionvip charts will throw an error when getting text values
 chart_type = 'line'  # line, bar, column, donut, pie
 region = 'US'
 resolution = 'provinces'
 stacked = 'false'  # true, false
 theme = 'lightMode'  # lightMode, darkMode
 legend_position = 'bottom'  # left, bottom
-custom = 'Einnahmen'
+custom = 'Aufträge / sonstiges'
 
 # -----------------------------
 # Notion Api Class
@@ -64,14 +64,22 @@ class NotionAPI:
 
     @staticmethod
     def convert_custom(custom):
-        c = custom.lower().replace(' ', '_')
+        c = custom.lower()
         c = c.replace('.', '')
+        c = c.replace(' ', '_')
         c = c.replace('-', '_')
+        c = c.replace('ä', 'a')
+        c = c.replace('ö', 'o')
+        c = c.replace('ü', 'u')
+        c = c.replace('&', '')
+        c = c.replace('/', '')
         return c
 
     # fetches your Notion database values
     def get_data(self, tableurl, skip_non_numerical_values):
         table_view = self.notion_client.get_collection_view(tableurl)
+        c = self.convert_custom(custom)
+        # print(c)
         properties = []
         for p in table_view.collection.get_schema_properties():
             if p['id'] == 'title':
@@ -81,8 +89,7 @@ class NotionAPI:
 
         # create data frame and append database properties
         data = [properties]
-        c = self.convert_custom(custom)
-        print(c)
+
         for r in table_view.collection.get_rows():
             row_title = r.title
             row_dict = r.get_all_properties()
@@ -144,32 +151,39 @@ class NotionAPI:
                 except:
                     is_numerical = False
 
-                # if c == '' or not c:
-                if not value or value == "":
-                    row.append("")
-                elif not skip_non_numerical_values:
-                    if value == row_title:
-                        row.insert(0, value)
+                if c == '' or not c:
+                    if not value or value == "":
+                        row.append("")
+                    elif not skip_non_numerical_values:
+                        if value == row_title:
+                            row.insert(0, value)
+                        else:
+                            row.append(value)
+                    elif is_numerical or value == row_title:
+                        if value == row_title:
+                            row.insert(0, value)
+                        else:
+                            row.append(value)
                     else:
-                        row.append(value)
-                elif is_numerical or value == row_title:
-                    if value == row_title:
-                        row.insert(0, value)
+                        row.append("")
+                elif len(c) > 0 or value == row_title:
+                    if c == i or value == row_title:
+                        if not value or value == "":
+                            row.append("")
+                        elif value == row_title:
+                            row.insert(0, value)
+                        else:
+                            row.append(value)
                     else:
-                        row.append(value)
+                        row.append("")
                 else:
                     row.append("")
-                # elif len(c) > 0 or value == row_title:
-                #
-                #     if c == i or value == row_title:
-                #         print('custom oder titel hinzugefügt')
-                #         row.append(value)
-
             data.append(row)
 
         data = self.delete_empty_columns(data)
         frame_id = [tableurl + '§' + str(len(data[0])) + '§' + str(len(data))]
         data.insert(0, frame_id)
+        print(data)
         return data
 
     # insert the created chart in notion
@@ -238,27 +252,27 @@ def generate_chart_link(range, chart_type, stacked, region, resolution, theme, l
 # -----------------------------
 # Fetch Notion data
 # -----------------------------
-Notion = NotionAPI(token)
-data_frame = Notion.get_data(tableurl, skip_non_numerical_values)
+# Notion = NotionAPI(token)
+# data_frame = Notion.get_data(tableurl, skip_non_numerical_values)
 
 # -----------------------------
 # Write it to Google Doc
 # -----------------------------
-doc = GoogleSheets()
-start = doc.write_frame_get_start(data_frame)
-id = doc.id[0]
-range = get_range(start, id)
+# doc = GoogleSheets()
+# start = doc.write_frame_get_start(data_frame)
+# id = doc.id[0]
+# range = get_range(start, id)
 
 # -----------------------------
 # Generate Link
 # -----------------------------
-link = generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position)
-print(f'\n Link:\n {link}')
+# link = generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position)
+# print(f'\n Link:\n {link}')
 
 # -----------------------------
 # Instert Chart with Notion Embed
 # -----------------------------
-Notion.insert_chart(pageurl, link)
+# Notion.insert_chart(pageurl, link)
 
 
 
