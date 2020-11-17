@@ -13,12 +13,97 @@ class LoginForm(FlaskForm):
     pageurl = StringField('pageurl', validators=[InputRequired()], render_kw={"placeholder": "Link to your page"})
     tableurl = StringField('tableurl', validators=[InputRequired()], render_kw={"placeholder": "Link to your table"})
 
-    chart_types = [('bar', 'Bar (Horizontal)'), ('column', 'Column (Vertical)'), ('line', 'Line'), ('pie', 'Pie'), ('donut', 'Donut')]
+    chart_types = [('bar', 'Bar (Horizontal)'), ('column', 'Column (Vertical)'), ('line', 'Line'), ('pie', 'Pie'), ('donut', 'Donut'), ('geo', 'Map')]
     chart_type = SelectField('chart_type', choices=chart_types, validators=[InputRequired()])
 
     stacked = BooleanField('stacked', render_kw={"placeholder": "Stacked?"})
 
+    region_options = [('AD', 'Andorra'),
+                      ('AF', 'Afghanistan'),
+                      ('AL', 'Albania'),
+                      ('AR', 'Argentina'),
+                      ('AT', 'Austria'),
+                      ('AU', 'Australia'),
+                      ('BE', 'Belgium'),
+                      ('BG', 'Bulgaria'),
+                      ('BR', 'Brazil'),
+                      ('BS', 'Bahamas'),
+                      ('BY', 'Belarus'),
+                      ('CA', 'Canada'),
+                      ('CL', 'Chile'),
+                      ('CN', 'China'),
+                      ('HR', 'Croatia'),
+                      ('CZ', 'Czechia'),
+                      ('DK', 'Denmark'),
+                      ('EG', 'Egypt'),
+                      ('FI', 'Finland'),
+                      ('FR', 'France'),
+                      ('DE', 'Germany'),
+                      ('GB', 'Great Britain'),
+                      ('IE', 'Ireland'),
+                      ('IL', 'Israel'),
+                      ('IN', 'India'),
+                      ('IQ', 'Iraq'),
+                      ('IR', 'Iran'),
+                      ('IS', 'Iceland'),
+                      ('IT', 'Italy'),
+                      ('JP', 'Japan'),
+                      ('KR', 'South Korea'),
+                      ('LB', 'Lebanon'),
+                      ('LI', 'Liechtenstein'),
+                      ('LU', 'Luxembourg'),
+                      ('LV', 'Latvia'),
+                      ('MA', 'Morocco'),
+                      ('MC', 'Monaco'),
+                      ('ME', 'Montenegro'),
+                      ('MG', 'Madagascar'),
+                      ('MX', 'Mexico'),
+                      ('MY', 'Malaysia'),
+                      ('NA', 'Namibia'),
+                      ('NG', 'Nigeria'),
+                      ('NL', 'Netherlands'),
+                      ('NO', 'Norway'),
+                      ('NP', 'Nepal'),
+                      ('NZ', 'New Zealand'),
+                      ('PA', 'Panama'),
+                      ('PE', 'Peru'),
+                      ('PH', 'Philippines'),
+                      ('PL', 'Poland'),
+                      ('PT', 'Portugal'),
+                      ('PY', 'Paraguay'),
+                      ('QA', 'Qatar'),
+                      ('RU', 'Russia'),
+                      ('SA', 'Saudi Arabia'),
+                      ('SD', 'Sudan'),
+                      ('SE', 'Sweden'),
+                      ('SG', 'Singapore'),
+                      ('SI', 'Slovenia'),
+                      ('SK', 'Slovakia'),
+                      ('SL', 'Sierra Leone'),
+                      ('SM', 'San Marino'),
+                      ('SN', 'Senegal'),
+                      ('SO', 'Somalia'),
+                      ('SS', 'South Sudan'),
+                      ('TH', 'Thailand'),
+                      ('TR', 'Turkey'),
+                      ('TV', 'Tuvalu'),
+                      ('TW', 'Taiwan'),
+                      ('UA', 'Ukraine'),
+                      ('AE', 'United Arab Emirates'),
+                      ('US', 'United States of America'),
+                      ('UY', 'Uruguay'),
+                      ('VE', 'Venezuela'),
+                      ('LK', 'Sri Lanka'),
+                      ('ES', 'Spain'),
+                      ('CH', 'Switzerland'),
+                      ]
+    region = SelectField('region', choices=region_options)
+
+    resolution_options = [('coutries', 'Countries'), ('provinces', 'Provinces'), ('metros', 'Metros')]
+    resolution = SelectField('resolution', choices=resolution_options)
+
     theme_options = [('lightTheme', 'Light Mode'), ('darkTheme', 'Dark Mode')]
+
     theme = SelectField('theme', choices=theme_options, validators=[InputRequired()])
 
     legend_options = [('right', 'Right'), ('bottom', 'Bottom')]
@@ -45,6 +130,8 @@ def home():
                 stacked = 'false'
         else:
             stacked = 'false'
+        region = form.region.data
+        resolution = form.resolution.data
         theme = form.theme.data
         legend_position = form.legend_position.data
         # custom_value = form.customvalue.data
@@ -60,7 +147,7 @@ def home():
         id = Doc.id[0]
         range = notion_charts.get_range(start, id)
 
-        link = notion_charts.generate_chart_link(range, chart_type, stacked, theme, legend_position)
+        link = notion_charts.generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position)
 
         Notion.insert_chart(pageurl, link)
 

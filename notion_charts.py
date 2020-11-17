@@ -11,8 +11,8 @@ from notion.block import *
 # Set up Notion Connection
 # -----------------------------
 token = 'cd8da425c7db1922f62fb6f7fffde69cd874130211bed1ebe25722bb3226053483de5b05753c7aa2bd168fb3886c41db1999599d8feda244f5d80364be23da228a42f03e249342d56d67adfbdcb9'
-tableurl = 'https://www.notion.so/samuelwoelfl/8f649c46e7b44eb78804d892e69eca4f?v=07d2c483af0a4c03b302ea4df4d395c1'
-pageurl = 'https://www.notion.so/samuelwoelfl/Freelance-Space-4fc251bb5b5c4e2fad04b1b659f40ee4'
+pageurl = 'https://www.notion.so/samuelwoelfl/Smoking-Page-d8279f2b8015487ca08e5cd261f597ab'
+tableurl = 'https://www.notion.so/samuelwoelfl/fc8d15330f3643338f09633f9219506b?v=7611bc4261974dacae8fce2e641748ec'
 
 # -----------------------------
 # Set up Google Docs Connection
@@ -21,6 +21,10 @@ scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/aut
 creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 sheets_client = gspread.authorize(creds)
 
+# -----------------------------
+# Set up Google Maps Connection
+# -----------------------------
+maps_api_key = 'AIzaSyCsUG_Kh1M6Lf45Ue3FmKTFJ9KxNx5WO2g'
 
 
 
@@ -28,11 +32,13 @@ sheets_client = gspread.authorize(creds)
 # Properties
 # -----------------------------
 # skip_non_numerical_values = True  # mostly necessary because notionvip charts will throw an error when getting text values
-# chart_type = 'column'  # line, bar, column, donut, pie
-# stacked = 'false'  # true, false
-# theme = 'lightMode'  # lightMode, darkMode
-# legend_position = 'bottom'  # left, bottom
-custom = 'Rechnung-Nr.'
+chart_type = 'line'  # line, bar, column, donut, pie
+region = 'US'
+resolution = 'provinces'
+stacked = 'false'  # true, false
+theme = 'lightMode'  # lightMode, darkMode
+legend_position = 'bottom'  # left, bottom
+custom = 'Einnahmen'
 
 # -----------------------------
 # Notion Api Class
@@ -76,7 +82,7 @@ class NotionAPI:
         # create data frame and append database properties
         data = [properties]
         c = self.convert_custom(custom)
-        # print(c)
+        print(c)
         for r in table_view.collection.get_rows():
             row_title = r.title
             row_dict = r.get_all_properties()
@@ -180,7 +186,8 @@ class NotionAPI:
 # -----------------------------
 class GoogleSheets:
     def __init__(self):
-        self.sheet = sheets_client.open("Notion Charts").get_worksheet(0)
+        self.spreadsheet = sheets_client.open("Notion Charts")
+        self.sheet = self.spreadsheet.sheet1
         self.id = ""
 
     # writes one row in google doc
@@ -216,37 +223,42 @@ def get_range(start, id):
     return start_cord + "%3A" + endcord
 
 # generates the link for the chart
-def generate_chart_link(range, chart_type, stacked, theme, legend_position):
+def generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position):
     print('generating link...')
-    link = 'https://notion.vip/notion-chart/draw.html?config_documentId=1B3c20WmqMQMCCaSvw5PPMBHTdLm1F82HePtC-7b1QRI&config_sheetName=Tabellenblatt1&config_dataRange=' + range + "&config_chartType=" + chart_type + "&option_isStacked=" + stacked + "&config_theme=" + theme + "&option_legend_position=" + legend_position
+    if chart_type == 'geo':
+        chart_type = 'geo&config_mapsApi=' + maps_api_key + '&option_region=' + region + '&option_resolution=' + resolution
+    elif chart_type == 'bar' or chart_type == 'column':
+        chart_type = chart_type + "&option_isStacked=" + stacked
+    link = 'https://notion.vip/notion-chart/draw.html?config_documentId=1B3c20WmqMQMCCaSvw5PPMBHTdLm1F82HePtC-7b1QRI&config_sheetName=Tabellenblatt1&config_dataRange=' + range + "&config_chartType=" + chart_type + "&config_theme=" + theme + "&option_legend_position=" + legend_position
     print('success\n')
     return link
+
 
 
 # -----------------------------
 # Fetch Notion data
 # -----------------------------
-# Notion = NotionAPI(token)
-# data_frame = Notion.get_data(tableurl, skip_non_numerical_values)
+Notion = NotionAPI(token)
+data_frame = Notion.get_data(tableurl, skip_non_numerical_values)
 
 # -----------------------------
 # Write it to Google Doc
 # -----------------------------
-# doc = GoogleSheets()
-# start = doc.write_frame_get_start(data_frame)
-# id = doc.id[0]
-# range = get_range(start, id)
+doc = GoogleSheets()
+start = doc.write_frame_get_start(data_frame)
+id = doc.id[0]
+range = get_range(start, id)
 
 # -----------------------------
 # Generate Link
 # -----------------------------
-# link = generate_chart_link(range, chart_type, stacked, theme, legend_position)
-# print(f'\n Link:\n {link}')
+link = generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position)
+print(f'\n Link:\n {link}')
 
 # -----------------------------
 # Instert Chart with Notion Embed
 # -----------------------------
-# Notion.insert_chart(pageurl, link)
+Notion.insert_chart(pageurl, link)
 
 
 

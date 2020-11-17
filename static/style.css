@@ -332,6 +332,7 @@ form .description.final {
 }
 
 input:not([type=checkbox]), select {
+  width: 100%;
   font-size: 15px;
   line-height: 26px;
   padding: 4px 10px;

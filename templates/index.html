@@ -53,13 +53,26 @@
                         {{ form.stacked }}
                         </div>
                     </div>
+                    <div class="map" style="display: none">
+                        <div class="label">Map Region</div>
+                        <div class="description">Specify what part of the world you want to show on your map or rather the part of the world your data represents.</div>
+                        {{ form.region }}
+                        <div class="label">Map Resolution</div>
+                        <div class="description">Set the level of detail on your map or rather the level of detail your data works with.</div>
+                        {{ form.resolution }}
+                    </div>
                     <script>
                     $('select').on('change', function() {
                         console.log( "changed" );
                         if ($('select[name=chart_type]').val() == 'bar' || $('select[name=chart_type]').val() == 'column') {
                             console.log("bar ausgewählt");
                             $('.stack').css("display", "block");
+                            $('.map').css("display", "none");
+                        } else if ($('select[name=chart_type]').val() == 'geo') {
+                            $('.map').css("display", "block");
+                            $('.stack').css("display", "none");
                         } else {
+                            $('.map').css("display", "none");
                             $('.stack').css("display", "none");
                         }
                       });
