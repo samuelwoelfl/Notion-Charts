@@ -99,7 +99,7 @@ class LoginForm(FlaskForm):
                       ]
     region = SelectField('region', choices=region_options)
 
-    resolution_options = [('coutries', 'Countries'), ('provinces', 'Provinces'), ('metros', 'Metros')]
+    resolution_options = [('coutries', 'Countries'), ('provinces', 'Provinces'), ('metros', 'Metros - only available for US')]
     resolution = SelectField('resolution', choices=resolution_options)
 
     theme_options = [('lightTheme', 'Light Mode'), ('darkTheme', 'Dark Mode')]
@@ -109,34 +109,23 @@ class LoginForm(FlaskForm):
     legend_options = [('right', 'Right'), ('bottom', 'Bottom')]
     legend_position = SelectField('legend_position', choices=legend_options, validators=[InputRequired()])
 
-    # customvalue = StringField('customvalue', render_kw={"placeholder": "eg. Amount"})
+    customvalue = StringField('customvalue', render_kw={"placeholder": "eg. Amount"})
 
-    skip_non_numerical_values = BooleanField('skip_non_numerical_values', validators=[InputRequired()])
+    skip_non_numerical_values = BooleanField('skip_non_numerical_values')
 
 
 status_list = ['Make Magic']
 
 @app.route('/_stuff', methods=['GET'])
 def stuff():
-    # token, pageurl, tableurl, chart_type, stacked, region, resolution, theme, legend_position, skip_non_numerical_values
-    # try:
-    #     for i, a in enumerate(args):
-    #         if i == 0: token = a
-    #         elif i == 1: pageurl = a
-    #         elif i == 2: tableurl = a
-    #         elif i == 3: chart_type = a
-    #         elif i == 4: stacked = a
-    #         elif i == 5: region = a
-    #         elif i == 6: resolution = a
-    #         elif i == 7: theme = a
-    #         elif i == 8: legend_position = a
-    #         elif i == 9: skip_non_numerical_values = a
     return jsonify(result=status_list[-1])
 
 @app.route("/", methods=["POST", "GET"])
 def home():
     form = LoginForm()
     if form.validate_on_submit():
+        status_list.append('Fetching data from Notion')
+
         token = form.token.data
         pageurl = form.pageurl.data
         tableurl = form.tableurl.data
@@ -153,27 +142,58 @@ def home():
         resolution = form.resolution.data
         theme = form.theme.data
         legend_position = form.legend_position.data
-        # custom_value = form.customvalue.data
-        # if not custom_value:
-        #     custom_value = ""
+        custom_value = form.customvalue.data
+        if not custom_value:
+            custom_value = ""
         skip_non_numerical_values = form.skip_non_numerical_values.data
+        if not skip_non_numerical_values or skip_non_numerical_values == None or skip_non_numerical_values == '':
+            skip_non_numerical_values = False
 
-        Notion = notion_charts.NotionAPI(token)
-        status_list.append('Fetching data from Notion')
-        data_frame = Notion.get_data(tableurl, skip_non_numerical_values)
+        try:
+            Notion = notion_charts.NotionAPI(token)
+        except:
+            status_list.append('Error while fetching Notion data. Please check your token.')
+            return render_template('index.html', form=form, text='', source='', success='', token=token)
+        try:
+            data_frame = Notion.get_data(tableurl, skip_non_numerical_values, custom_value)
+        except:
+            status_list.append('Error while fetching Notion data. Please check the URLs to your page and table.')
+            return render_template('index.html', form=form, text='', source='', success='', token=token)
+
         status_list.append('Transferring data to google sheets')
-        Doc = notion_charts.GoogleSheets()
-        start = Doc.write_frame_get_start(data_frame)
-        id = Doc.id[0]
-        range = notion_charts.get_range(start, id)
+
+        try:
+            Doc = notion_charts.GoogleSheets()
+            start = Doc.write_frame_get_start(data_frame)
+            id = Doc.id[0]
+            range = notion_charts.get_range(start, id)
+        except:
+            status_list.append('Error while transferring data to Google Sheets.')
+            return render_template('index.html', form=form, text='', source='', success='', token=token)
+
         status_list.append('Generating link')
-        link = notion_charts.generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position)
+
+        try:
+            link = notion_charts.generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position)
+        except:
+            status_list.append('Error while generating link.')
+            return render_template('index.html', form=form, text='', source='', success='', token=token)
+
         status_list.append('Inserting Chart')
-        Notion.insert_chart(pageurl, link)
-        status_list.append('Make Magic')
-        resp = make_response(render_template('index.html', form=form, text='Your chart got inserted!', source='../static/img/party_face.png', success='display'))
-        resp.set_cookie('token_v2', token)
-        return resp
+
+        try:
+            Notion.insert_chart(pageurl, link)
+        except:
+            status_list.append('Error while inserting chart.')
+            return render_template('index.html', form=form, text='', source='', success='', token=token)
+        try:
+            status_list.append('Make Magic')
+            resp = make_response(render_template('index.html', form=form, text='Your chart got inserted!', source='../static/img/party_face.png', success='display'))
+            resp.set_cookie('token_v2', token)
+            return resp
+        except:
+            status_list.append('General Error')
+            return render_template('index.html', form=form, text='', source='', success='', token=token)
     else:
         try:
             token = request.cookies.get('token_v2')

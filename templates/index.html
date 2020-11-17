@@ -97,14 +97,13 @@
                         }
                       });
                     </script>
-
                     <div class="label">Notion Theme</div>
                     {{ form.theme }}
                     <div class="label">Legend Position</div>
                     {{ form.legend_position }}
-<!--                    <div class="label">Custom Column</div>-->
-<!--                    <div class="description">You can insert the name of a column that you want to use for data and all others will be ignored. If you want to see everything in the chart, just leave it blank.</div>-->
-<!--                    {{ form.customvalue}}-->
+                    <div class="label">Custom Column</div>
+                    <div class="description">You can insert the name of a column that you want to use for data and all others will be ignored. If you want to see everything in the chart, just leave it blank.</div>
+                    {{ form.customvalue}}
                     <div class="label">Skip non numerical values?</div>
                     <div class="description">Recommended if you have many text fields in your data because notionvip will often get an error then. Titles are preserved and will stay.</div>
                     {{ form.skip_non_numerical_values }}

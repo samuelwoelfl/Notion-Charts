@@ -31,14 +31,14 @@ maps_api_key = 'AIzaSyCsUG_Kh1M6Lf45Ue3FmKTFJ9KxNx5WO2g'
 # -----------------------------
 # Properties
 # -----------------------------
-skip_non_numerical_values = False  # mostly necessary because notionvip charts will throw an error when getting text values
-chart_type = 'line'  # line, bar, column, donut, pie
-region = 'US'
-resolution = 'provinces'
-stacked = 'false'  # true, false
-theme = 'lightMode'  # lightMode, darkMode
-legend_position = 'bottom'  # left, bottom
-custom = 'Aufträge / sonstiges'
+# skip_non_numerical_values = False  # mostly necessary because notionvip charts will throw an error when getting text values
+# chart_type = 'line'  # line, bar, column, donut, pie
+# region = 'US'
+# resolution = 'provinces'
+# stacked = 'false'  # true, false
+# theme = 'lightMode'  # lightMode, darkMode
+# legend_position = 'bottom'  # left, bottom
+# custom = 'Aufträge / sonstiges'
 
 # -----------------------------
 # Notion Api Class
@@ -76,7 +76,7 @@ class NotionAPI:
         return c
 
     # fetches your Notion database values
-    def get_data(self, tableurl, skip_non_numerical_values):
+    def get_data(self, tableurl, skip_non_numerical_values, custom):
         table_view = self.notion_client.get_collection_view(tableurl)
         c = self.convert_custom(custom)
         # print(c)
