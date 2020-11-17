@@ -32,7 +32,7 @@ sheets_client = gspread.authorize(creds)
 # stacked = 'false'  # true, false
 # theme = 'lightMode'  # lightMode, darkMode
 # legend_position = 'bottom'  # left, bottom
-
+custom = 'Rechnung-Nr.'
 
 # -----------------------------
 # Notion Api Class
@@ -56,6 +56,13 @@ class NotionAPI:
                 r.pop(i)
         return data
 
+    @staticmethod
+    def convert_custom(custom):
+        c = custom.lower().replace(' ', '_')
+        c = c.replace('.', '')
+        c = c.replace('-', '_')
+        return c
+
     # fetches your Notion database values
     def get_data(self, tableurl, skip_non_numerical_values):
         table_view = self.notion_client.get_collection_view(tableurl)
@@ -68,13 +75,15 @@ class NotionAPI:
 
         # create data frame and append database properties
         data = [properties]
-
+        c = self.convert_custom(custom)
+        # print(c)
         for r in table_view.collection.get_rows():
             row_title = r.title
             row_dict = r.get_all_properties()
             row = []
             for i in row_dict:
                 value = row_dict[i]
+                # print(i, value)
 
                 try:
                     value = value.start
@@ -82,7 +91,6 @@ class NotionAPI:
                     is_date = True
                 except:
                     is_date = False
-
 
                 if type(value) == list:
                     if len(value) > 0:
@@ -122,6 +130,7 @@ class NotionAPI:
                             value = ""
                     else:
                         value = ""
+
                 try:
                     if value != True and value != False and not is_date:
                         value = float(value)
@@ -129,6 +138,7 @@ class NotionAPI:
                 except:
                     is_numerical = False
 
+                # if c == '' or not c:
                 if not value or value == "":
                     row.append("")
                 elif not skip_non_numerical_values:
@@ -143,6 +153,11 @@ class NotionAPI:
                         row.append(value)
                 else:
                     row.append("")
+                # elif len(c) > 0 or value == row_title:
+                #
+                #     if c == i or value == row_title:
+                #         print('custom oder titel hinzugefügt')
+                #         row.append(value)
 
             data.append(row)
 
@@ -212,7 +227,7 @@ def generate_chart_link(range, chart_type, stacked, theme, legend_position):
 # Fetch Notion data
 # -----------------------------
 # Notion = NotionAPI(token)
-# data_frame = Notion.get_data(tableurl)
+# data_frame = Notion.get_data(tableurl, skip_non_numerical_values)
 
 # -----------------------------
 # Write it to Google Doc

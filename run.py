@@ -24,6 +24,8 @@ class LoginForm(FlaskForm):
     legend_options = [('right', 'Right'), ('bottom', 'Bottom')]
     legend_position = SelectField('legend_position', choices=legend_options, validators=[InputRequired()])
 
+    # customvalue = StringField('customvalue', render_kw={"placeholder": "eg. Amount"})
+
     skip_non_numerical_values = BooleanField('skip_non_numerical_values', validators=[InputRequired()])
 
 
@@ -45,6 +47,9 @@ def home():
             stacked = 'false'
         theme = form.theme.data
         legend_position = form.legend_position.data
+        # custom_value = form.customvalue.data
+        # if not custom_value:
+        #     custom_value = ""
         skip_non_numerical_values = form.skip_non_numerical_values.data
 
         Notion = notion_charts.NotionAPI(token)
