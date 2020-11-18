@@ -4,13 +4,11 @@ oauth2client
 google-api-python-client
 cachetools==4.1.0
 click==7.1.2
-certifi==4.5.1
 Flask==1.1.2
 httplib2==0.17.3
-Jinja2==2.11.2
-markupsafe==1.1.1
-idna==2.9
-openpyxl==3.0.3
+Jinja2==3.0.0a1
+markupsafe==2.0.0a1
+idna==2.10
 pyasn1==0.4.8
 urllib3==1.25.9
 werkzeug==1.0.1
