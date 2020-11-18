@@ -178,7 +178,6 @@ def home():
         try:
             Doc = notion_charts.GoogleSheets()
             start, range = Doc.write_frame_get_start(data_frame)
-            id = Doc.id[0]
         except:
             status_list.append('Error while transferring data to Google Sheets.')
             return render_template('index.html#bottom', form=form, text='', source='', success='', token=token)
