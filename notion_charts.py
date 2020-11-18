@@ -20,6 +20,7 @@ tableurl = 'https://www.notion.so/samuelwoelfl/fc8d15330f3643338f09633f9219506b?
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 sheets_client = gspread.authorize(creds)
+sheet_id = '1B3c20WmqMQMCCaSvw5PPMBHTdLm1F82HePtC-7b1QRI'
 
 # -----------------------------
 # Set up Google Maps Connection
@@ -31,14 +32,15 @@ maps_api_key = 'AIzaSyCsUG_Kh1M6Lf45Ue3FmKTFJ9KxNx5WO2g'
 # -----------------------------
 # Properties
 # -----------------------------
-skip_non_numerical_values = False  # mostly necessary because notionvip charts will throw an error when getting text values
+skip_non_numerical_values = True  # mostly necessary because notionvip charts will throw an error when getting text values
 chart_type = 'line'  # line, bar, column, donut, pie
 region = 'US'
 resolution = 'provinces'
 stacked = 'false'  # true, false
 theme = 'lightMode'  # lightMode, darkMode
 legend_position = 'bottom'  # left, bottom
-custom = ''
+custom = []
+colors = []
 
 # -----------------------------
 # Notion Api Class
@@ -229,6 +231,40 @@ class GoogleSheets:
         print('success\n')
         return start
 
+    # writes data frame to google doc and finds start row
+    def write_frame_get_start2(self, frame):
+        print('transfer data to google sheets...')
+        start = len(self.sheet.get_all_values()) + 1
+        self.id = frame[0][0]
+
+        startcord_raw, endcord_raw = get_range(start, self.id)
+
+        for i, ch in enumerate(startcord_raw):
+            try:
+                int(ch)
+                index = i
+                break
+            except:
+                pass
+        startcord_integer = int(startcord_raw[index:]) + 1
+        startcord = str(startcord_raw[:index]) + str(startcord_integer)
+
+        endcord = endcord_raw
+        for i, ch in enumerate(endcord):
+            try:
+                int(ch)
+                index = i
+                break
+            except:
+                pass
+        endcord_integer = int(endcord[index:]) + 1
+        endcord = str(endcord[:index]) + str(endcord_integer)
+        range = startcord_raw + ':' + endcord
+        self.sheet.update(range, frame)
+        # self.sheet.update('A1:B2', [[1, 2], [3, 4]])
+        print('success\n')
+        return start, startcord + '%3A' + endcord
+
 # gets range of table for the link
 def get_range(start, id):
     indeces = []
@@ -242,7 +278,7 @@ def get_range(start, id):
     endcolumn = chr(ord('@') + int(width))
     endrow = start + int(height)
     endcord = str(endcolumn) + str(endrow)
-    return start_cord + "%3A" + endcord
+    return start_cord, endcord
 
 # generates the link for the chart
 def generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position, colors):
@@ -267,26 +303,25 @@ def generate_chart_link(range, chart_type, stacked, region, resolution, theme, l
 # Fetch Notion data
 # -----------------------------
 Notion = NotionAPI(token)
-data_frame = Notion.get_data(tableurl, skip_non_numerical_values)
+data_frame = Notion.get_data(tableurl, skip_non_numerical_values, custom)
 
 # -----------------------------
 # Write it to Google Doc
 # -----------------------------
 doc = GoogleSheets()
-start = doc.write_frame_get_start(data_frame)
-id = doc.id[0]
-range = get_range(start, id)
+start, range = doc.write_frame_get_start2(data_frame)
+
 
 # -----------------------------
 # Generate Link
 # -----------------------------
-# link = generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position)
-# print(f'\n Link:\n {link}')
+link = generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position, colors)
+print(f'\n Link:\n {link}')
 
 # -----------------------------
 # Instert Chart with Notion Embed
 # -----------------------------
-# Notion.insert_chart(pageurl, link)
+Notion.insert_chart(pageurl, link)
 
 
 
