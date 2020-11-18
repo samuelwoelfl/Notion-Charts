@@ -1,9 +1,11 @@
 wtforms
 notion
+flask
+gspread
+oauth2client
 google-api-python-client
 cachetools==4.1.0
 click==7.1.2
-certifi==2020.4.5.1
 certifi==4.5.1
 Flask==1.1.2
 httplib2==0.17.3
