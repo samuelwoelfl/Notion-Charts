@@ -109,7 +109,14 @@ class LoginForm(FlaskForm):
     legend_options = [('right', 'Right'), ('bottom', 'Bottom')]
     legend_position = SelectField('legend_position', choices=legend_options, validators=[InputRequired()])
 
-    customvalue = StringField('customvalue', render_kw={"placeholder": "eg. Amount"})
+    customvalue = StringField('customvalue', render_kw={"placeholder": "eg. Amount;Visitors"})
+
+    customcolor1 = StringField('customcolor1', render_kw={"placeholder": "#ff0000;#00ff00"})
+    # customcolor2 = StringField('customcolor2', render_kw={"placeholder": "#00ff00"})
+    # customcolor3 = StringField('customcolor3', render_kw={"placeholder": "#0000ff"})
+    # customcolor4 = StringField('customcolor4', render_kw={"placeholder": "#ff0000"})
+    # customcolor5 = StringField('customcolor5', render_kw={"placeholder": "#00ff00"})
+    # customcolor6 = StringField('customcolor6', render_kw={"placeholder": "#0000ff"})
 
     skip_non_numerical_values = BooleanField('skip_non_numerical_values')
 
@@ -145,6 +152,12 @@ def home():
         custom_value = form.customvalue.data
         if not custom_value:
             custom_value = ""
+        else:
+            custom_value = custom_value.split(';')
+        try:
+            colors = form.customcolor1.data.replace('#', '%23').replace(';', ',')
+        except:
+            colors = []
         skip_non_numerical_values = form.skip_non_numerical_values.data
         if not skip_non_numerical_values or skip_non_numerical_values == None or skip_non_numerical_values == '':
             skip_non_numerical_values = False
@@ -153,12 +166,12 @@ def home():
             Notion = notion_charts.NotionAPI(token)
         except:
             status_list.append('Error while fetching Notion data. Please check your token.')
-            return render_template('index.html', form=form, text='', source='', success='', token=token)
+            return render_template('index.html#bottom', form=form, text='', source='', success='', token=token)
         try:
             data_frame = Notion.get_data(tableurl, skip_non_numerical_values, custom_value)
         except:
             status_list.append('Error while fetching Notion data. Please check the URLs to your page and table.')
-            return render_template('index.html', form=form, text='', source='', success='', token=token)
+            return render_template('index.html#bottom', form=form, text='', source='', success='', token=token)
 
         status_list.append('Transferring data to google sheets')
 
@@ -169,15 +182,15 @@ def home():
             range = notion_charts.get_range(start, id)
         except:
             status_list.append('Error while transferring data to Google Sheets.')
-            return render_template('index.html', form=form, text='', source='', success='', token=token)
+            return render_template('index.html#bottom', form=form, text='', source='', success='', token=token)
 
         status_list.append('Generating link')
 
         try:
-            link = notion_charts.generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position)
+            link = notion_charts.generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position, colors)
         except:
             status_list.append('Error while generating link.')
-            return render_template('index.html', form=form, text='', source='', success='', token=token)
+            return render_template('index.html#bottom', form=form, text='', source='', success='', token=token)
 
         status_list.append('Inserting Chart')
 
@@ -185,7 +198,7 @@ def home():
             Notion.insert_chart(pageurl, link)
         except:
             status_list.append('Error while inserting chart.')
-            return render_template('index.html', form=form, text='', source='', success='', token=token)
+            return render_template('index.html#bottom', form=form, text='', source='', success='', token=token)
         try:
             status_list.append('Make Magic')
             resp = make_response(render_template('index.html', form=form, text='Your chart got inserted!', source='../static/img/party_face.png', success='display'))
@@ -193,7 +206,7 @@ def home():
             return resp
         except:
             status_list.append('General Error')
-            return render_template('index.html', form=form, text='', source='', success='', token=token)
+            return render_template('index.html#bottom', form=form, text='', source='', success='', token=token)
     else:
         try:
             token = request.cookies.get('token_v2')

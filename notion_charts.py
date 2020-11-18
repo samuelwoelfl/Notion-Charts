@@ -31,14 +31,14 @@ maps_api_key = 'AIzaSyCsUG_Kh1M6Lf45Ue3FmKTFJ9KxNx5WO2g'
 # -----------------------------
 # Properties
 # -----------------------------
-# skip_non_numerical_values = False  # mostly necessary because notionvip charts will throw an error when getting text values
-# chart_type = 'line'  # line, bar, column, donut, pie
-# region = 'US'
-# resolution = 'provinces'
-# stacked = 'false'  # true, false
-# theme = 'lightMode'  # lightMode, darkMode
-# legend_position = 'bottom'  # left, bottom
-# custom = 'Aufträge / sonstiges'
+skip_non_numerical_values = False  # mostly necessary because notionvip charts will throw an error when getting text values
+chart_type = 'line'  # line, bar, column, donut, pie
+region = 'US'
+resolution = 'provinces'
+stacked = 'false'  # true, false
+theme = 'lightMode'  # lightMode, darkMode
+legend_position = 'bottom'  # left, bottom
+custom = ''
 
 # -----------------------------
 # Notion Api Class
@@ -64,16 +64,24 @@ class NotionAPI:
 
     @staticmethod
     def convert_custom(custom):
-        c = custom.lower()
-        c = c.replace('.', '')
-        c = c.replace(' ', '_')
-        c = c.replace('-', '_')
-        c = c.replace('ä', 'a')
-        c = c.replace('ö', 'o')
-        c = c.replace('ü', 'u')
-        c = c.replace('&', '')
-        c = c.replace('/', '')
-        return c
+        custom_final = []
+        for c in custom:
+            c = c.lower()
+            c = c.replace('.', '')
+            c = c.replace(' ', '_')
+            c = c.replace('-', '_')
+            c = c.replace('ä', 'a')
+            c = c.replace('ö', 'o')
+            c = c.replace('ü', 'u')
+            c = c.replace('&', '')
+            c = c.replace('$', '')
+            c = c.replace('§', '')
+            c = c.replace('(', '')
+            c = c.replace(')', '')
+            c = c.replace('%', '')
+            c = c.replace('"', '')
+            custom_final.append(c)
+        return custom_final
 
     # fetches your Notion database values
     def get_data(self, tableurl, skip_non_numerical_values, custom):
@@ -151,7 +159,7 @@ class NotionAPI:
                 except:
                     is_numerical = False
 
-                if c == '' or not c:
+                if c == [] or not c:
                     if not value or value == "":
                         row.append("")
                     elif not skip_non_numerical_values:
@@ -167,7 +175,7 @@ class NotionAPI:
                     else:
                         row.append("")
                 elif len(c) > 0 or value == row_title:
-                    if c == i or value == row_title:
+                    if i in c or value == row_title:
                         if not value or value == "":
                             row.append("")
                         elif value == row_title:
@@ -237,13 +245,19 @@ def get_range(start, id):
     return start_cord + "%3A" + endcord
 
 # generates the link for the chart
-def generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position):
+def generate_chart_link(range, chart_type, stacked, region, resolution, theme, legend_position, colors):
     print('generating link...')
     if chart_type == 'geo':
         chart_type = 'geo&config_mapsApi=' + maps_api_key + '&option_region=' + region + '&option_resolution=' + resolution
     elif chart_type == 'bar' or chart_type == 'column':
         chart_type = chart_type + "&option_isStacked=" + stacked
-    link = 'https://notion.vip/notion-chart/draw.html?config_documentId=1B3c20WmqMQMCCaSvw5PPMBHTdLm1F82HePtC-7b1QRI&config_sheetName=Tabellenblatt1&config_dataRange=' + range + "&config_chartType=" + chart_type + "&config_theme=" + theme + "&option_legend_position=" + legend_position
+    if len(colors) > 0:
+        colors = '&option_colors=' + colors
+    else:
+        colors = ''
+
+
+    link = 'https://notion.vip/notion-chart/draw.html?config_documentId=1B3c20WmqMQMCCaSvw5PPMBHTdLm1F82HePtC-7b1QRI&config_sheetName=Tabellenblatt1&config_dataRange=' + range + "&config_chartType=" + chart_type + "&config_theme=" + theme + "&option_legend_position=" + legend_position  + colors
     print('success\n')
     return link
 
@@ -252,16 +266,16 @@ def generate_chart_link(range, chart_type, stacked, region, resolution, theme, l
 # -----------------------------
 # Fetch Notion data
 # -----------------------------
-# Notion = NotionAPI(token)
-# data_frame = Notion.get_data(tableurl, skip_non_numerical_values)
+Notion = NotionAPI(token)
+data_frame = Notion.get_data(tableurl, skip_non_numerical_values)
 
 # -----------------------------
 # Write it to Google Doc
 # -----------------------------
-# doc = GoogleSheets()
-# start = doc.write_frame_get_start(data_frame)
-# id = doc.id[0]
-# range = get_range(start, id)
+doc = GoogleSheets()
+start = doc.write_frame_get_start(data_frame)
+id = doc.id[0]
+range = get_range(start, id)
 
 # -----------------------------
 # Generate Link

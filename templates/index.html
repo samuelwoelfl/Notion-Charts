@@ -102,8 +102,13 @@
                     <div class="label">Legend Position</div>
                     {{ form.legend_position }}
                     <div class="label">Custom Column</div>
-                    <div class="description">You can insert the name of a column that you want to use for data and all others will be ignored. If you want to see everything in the chart, just leave it blank.</div>
-                    {{ form.customvalue}}
+                    <div class="description">You can insert the name of the columns that you want to use for data and all others will be ignored. If you want to see everything in the chart, just leave it blank. You can insert multiple columns, seperated by a <span class="code">;</span>.</div>
+                    {{ form.customvalue }}
+                    <div class="label">Custom Colors</div>
+                    <div class="description">Insert as many custom colors as you want. They will be applied to the different columns. Format needs to be HEX. If you want to inserti multiple ones (they will get distributed over your different graphs) you can just separate them by a <span class="code">;</span>.</div>
+                    <div class="colors">
+                        {{ form.customcolor1 }}
+                    </div>
                     <div class="label">Skip non numerical values?</div>
                     <div class="description">Recommended if you have many text fields in your data because notionvip will often get an error then. Titles are preserved and will stay.</div>
                     {{ form.skip_non_numerical_values }}
