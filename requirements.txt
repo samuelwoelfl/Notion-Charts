@@ -1,6 +1,5 @@
 wtforms
 notion
-gspread
 oauth2client
 google-api-python-client
 cachetools==4.1.0
