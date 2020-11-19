@@ -81,11 +81,27 @@ header .inner {
 }
 
 header .logo {
-  width: 20%;
+  /* width: 24%; */
+  height: 90%;
+}
+
+header .logo a {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  color: var(--accentcolor)
 }
 
 header .logo img {
-  width: 13%;
+  height: 55%;
+  margin-right: 15px;
+  filter: invert(1);
+  filter: hue-rotate(180deg);
+  filter: brightness(3.25);
+  filter: saturate(0);
 }
 
 
@@ -235,7 +251,7 @@ header .github:hover svg path {
   max-width: 600px;
   display: flex;
   flex-direction: column;
-  margin-bottom: 3vh;
+  margin-bottom: 15vh;
 }
 
 .form .subtitle {

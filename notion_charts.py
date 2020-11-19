@@ -31,15 +31,15 @@ maps_api_key = 'AIzaSyCsUG_Kh1M6Lf45Ue3FmKTFJ9KxNx5WO2g'
 # -----------------------------
 # Properties
 # -----------------------------
-# skip_non_numerical_values = True  # mostly necessary because notionvip charts will throw an error when getting text values
-# chart_type = 'line'  # line, bar, column, donut, pie
-# region = 'US'
-# resolution = 'provinces'
-# stacked = 'false'  # true, false
-# theme = 'lightMode'  # lightMode, darkMode
-# legend_position = 'bottom'  # left, bottom
-# custom = []
-# colors = []
+skip_non_numerical_values = True  # mostly necessary because notionvip charts will throw an error when getting text values
+chart_type = 'line'  # line, bar, column, donut, pie
+region = 'US'
+resolution = 'provinces'
+stacked = 'false'  # true, false
+theme = 'lightMode'  # lightMode, darkMode
+legend_position = 'bottom'  # left, bottom
+custom = []
+colors = []
 
 # -----------------------------
 # Notion Api Class
@@ -190,7 +190,7 @@ class NotionAPI:
             data.append(row)
 
         data = self.delete_empty_columns(data)
-        frame_id = [tableurl + '§' + str(len(data[0])) + '§' + str(len(data))]
+        frame_id = [tableurl, str(len(data[0])) + '§' + str(len(data))]
         data.insert(0, frame_id)
         print(data)
         return data
@@ -221,45 +221,48 @@ class GoogleSheets:
     def write_frame_get_start(self, frame):
         print('transfer data to google sheets...')
         start = len(self.sheet.get_all_values()) + 1
-        self.id = frame[0][0]
-
-        startcord_raw, endcord_raw = get_range(start, self.id)
-
-        for i, ch in enumerate(startcord_raw):
-            try:
-                int(ch)
-                index = i
-                break
-            except:
-                pass
-        startcord_integer = int(startcord_raw[index:]) + 1
-        startcord = str(startcord_raw[:index]) + str(startcord_integer)
-
-        endcord = endcord_raw
-        for i, ch in enumerate(endcord):
-            try:
-                int(ch)
-                index = i
-                break
-            except:
-                pass
-        endcord_integer = int(endcord[index:]) + 1
-        endcord = str(endcord[:index]) + str(endcord_integer)
+        id = frame[0]
+        startcord_raw, endcord_raw = get_range(start, id)
+        startcord = manipulate_cord(startcord_raw, 1)
+        endcord = manipulate_cord(endcord_raw, 1)
         range = startcord_raw + ':' + endcord
         self.sheet.update(range, frame)
-        # self.sheet.update('A1:B2', [[1, 2], [3, 4]])
         print('success\n')
+        print(start, startcord + '%3A' + endcord)
         return start, startcord + '%3A' + endcord
+
+    def update_frame(self, frame):
+        id = frame[0][0]
+        try:
+            start = self.sheet.find(id).row
+            print(start)
+            startcord_raw, endcord_raw_new = get_range(start, id)
+            print(startcord_raw, endcord_raw_new)
+        except:
+            print('cell not found')
+
+
+
+
+def manipulate_cord(cord, value):
+    for i, ch in enumerate(cord):
+        try:
+            int(ch)
+            index = i
+            break
+        except:
+            pass
+    cord_integer = int(cord[index:]) + value
+    cord = str(cord[:index]) + str(cord_integer)
+    return cord
 
 # gets range of table for the link
 def get_range(start, id):
-    indeces = []
-    for i, ch in enumerate(id):
-        if id[i] == '§':
-            indeces.append(i)
-    width = id[indeces[0] + 1:indeces[1]]
-    height = id[indeces[1] + 1:]
-
+    index = id[1].find('§')
+    id = id[1]
+    width = id[:index]
+    height = id[index + 1:]
+    start = int(start)
     start_cord = 'A' + str(start + 1)
     endcolumn = chr(ord('@') + int(width))
     endrow = start + int(height)
@@ -295,7 +298,8 @@ def generate_chart_link(range, chart_type, stacked, region, resolution, theme, l
 # Write it to Google Doc
 # -----------------------------
 # doc = GoogleSheets()
-# start, range = doc.write_frame_get_start2(data_frame)
+# start, range = doc.write_frame_get_start(data_frame)
+# start, range = doc.update_frame(data_frame)
 
 
 # -----------------------------
