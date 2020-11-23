@@ -195,7 +195,7 @@ def home():
         status_list.append('Inserting Chart')
 
         try:
-            Notion.insert_chart(pageurl, link)
+            Notion.insert_chart(pageurl, tableurl, link)
         except:
             status_list.append('Error while inserting chart.')
             return render_template('index.html#bottom', form=form, text='', source='', success='', token=token)

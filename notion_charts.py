@@ -211,7 +211,7 @@ class NotionAPI:
         return data
 
     # insert the created chart in notion
-    def insert_chart(self, pageurl, embedurl):
+    def insert_chart(self, pageurl, tableurl, embedurl):
         page = self.notion_client.get_block(pageurl)
         table_anchor = self.notion_client.get_block(tableurl)
         chart = page.children.add_new(EmbedBlock, width=900, height=400)
