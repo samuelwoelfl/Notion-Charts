@@ -31,7 +31,6 @@ def create_keyfile_dict():
         "client_x509_cert_url": os.environ.get("SHEET_CLIENT_X509_CERT_URL")
     }
     return variables_keys
-
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name(create_keyfile_dict(), scope)
 sheets_client = gspread.authorize(creds)
