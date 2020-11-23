@@ -46,15 +46,15 @@ maps_api_key = 'AIzaSyCsUG_Kh1M6Lf45Ue3FmKTFJ9KxNx5WO2g'
 # -----------------------------
 # Properties
 # -----------------------------
-skip_non_numerical_values = True  # mostly necessary because notionvip charts will throw an error when getting text values
-chart_type = 'line'  # line, bar, column, donut, pie
-region = 'US'
-resolution = 'provinces'
-stacked = 'false'  # true, false
-theme = 'lightMode'  # lightMode, darkMode
-legend_position = 'bottom'  # left, bottom
-custom = []
-colors = []
+# skip_non_numerical_values = True  # mostly necessary because notionvip charts will throw an error when getting text values
+# chart_type = 'line'  # line, bar, column, donut, pie
+# region = 'US'
+# resolution = 'provinces'
+# stacked = 'false'  # true, false
+# theme = 'lightMode'  # lightMode, darkMode
+# legend_position = 'bottom'  # left, bottom
+# custom = []
+# colors = []
 
 # -----------------------------
 # Notion Api Class

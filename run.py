@@ -103,7 +103,7 @@ class LoginForm(FlaskForm):
     resolution_options = [('coutries', 'Countries'), ('provinces', 'Provinces'), ('metros', 'Metros - only available for US')]
     resolution = SelectField('resolution', choices=resolution_options)
 
-    theme_options = [('lightTheme', 'Light Mode'), ('darkTheme', 'Dark Mode')]
+    theme_options = [('lightMode', 'Light Mode'), ('darkMode', 'Dark Mode')]
 
     theme = SelectField('theme', choices=theme_options, validators=[InputRequired()])
 
