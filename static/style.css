@@ -92,16 +92,14 @@ header .logo a {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  color: var(--accentcolor)
+  /* color: var(--accentcolor) */
+  font-weight: 500;
+  color: #222;
 }
 
 header .logo img {
   height: 55%;
   margin-right: 15px;
-  filter: invert(1);
-  filter: hue-rotate(180deg);
-  filter: brightness(3.25);
-  filter: saturate(0);
 }
 
 
@@ -158,9 +156,17 @@ header .github:hover svg path {
 .heading img {
   width: 70%;
   display: block;
-  margin: 1vh auto 5vh auto;
+  margin: 1vh auto 1.2vh auto;
   border-radius: 5px;
   box-shadow: 0px 40px 25px -25px #00000033;
+}
+
+.caption {
+  width: 70%;
+  display: block;
+  margin: 0 auto 5vh auto;
+  text-align: center;
+  font-size: .9em
 }
 
 .heading .ctas {
@@ -214,14 +220,14 @@ header .github:hover svg path {
   margin: 0 auto;
 }
 
-.heading p a {
+.heading a {
   transition: .2s ease;
   color: #999;
   font-weight:400;
   border-bottom: 1px solid #ddd;
 }
 
-.heading p a:hover {
+.heading a:hover {
   color: #444;
   border-color: #444;
 }
