@@ -2,7 +2,8 @@ from flask import Flask, render_template, redirect, make_response, request, json
 from wtforms import *
 from flask_wtf import FlaskForm
 from wtforms.validators import InputRequired
-import notion_charts, time
+import notion_charts
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '6EFiWos8bvji3dps8H9J'
@@ -125,6 +126,7 @@ status_list = ['Make Magic']
 
 @app.route('/_stuff', methods=['GET'])
 def stuff():
+    global status_list
     return jsonify(result=status_list[-1])
 
 @app.route("/", methods=["POST", "GET"])
@@ -219,6 +221,7 @@ def table(data):
     return redirect("https://google.com")
 
 
+port = int(os.environ.get("PORT", 5000))
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=port, debug=True)
 
